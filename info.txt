@@ -1,0 +1,16 @@
+param([switch]$show)
+
+function get-cpuUsage {
+  param([switch]$show)
+  $usage=[math]::Round((Get-Counter '\Processor(_Total)\% Processor Time').CounterSamples.CookedValue,2)
+  $mem = Get-CimInstance Win32_OperatingSystem
+$memory = [math]::Round((($mem.TotalVisibleMemorySize - $mem.FreePhysicalMemory) / $mem.TotalVisibleMemorySize) * 100, 2)
+  Write-Host "CPU: $usage%"
+  Write-Host "Memory: $memory%" } 
+  if($show){
+    Get-CimInstance Win32_Process | 
+    Select-Object Name, @{Name="MemoryUsageMB"; Expression={[math]::Round($_.WorkingSetSize / 1MB, 2)}} |
+    Sort-Object MemoryUsageMB -Descending | Select-Object -First 15 Name, MemoryUsageMB
+  }
+
+get-cpuUsage $show
