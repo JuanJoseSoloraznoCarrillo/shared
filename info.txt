@@ -14,3 +14,22 @@ $memory = [math]::Round((($mem.TotalVisibleMemorySize - $mem.FreePhysicalMemory)
     Sort-Object MemoryUsageMB -Descending | Select-Object -First 15 Name, MemoryUsageMB
   }
 }
+
+
+function rmProc {
+	param([string]$name)
+	if(-not $name){
+		Write-Host "[?] Usage:`n`t>> rmProc [process name]"
+		return
+	}
+	if($name.Contains('.')){
+		$name = $name.split('.')[0]
+	}
+	try {
+		kill -processName $name
+		Write-Host "[+] The process `"$name`" was removed."
+	}
+	catch {
+		Write-Host "[!] Error: $name is still running ..."
+	}
+}
